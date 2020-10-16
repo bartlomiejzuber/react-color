@@ -24,6 +24,10 @@ export const Swatch = ({ color, style, onClick = () => {}, onHover, title = colo
     },
   })
 
+  const handleMouseDown = e => {
+    e.preventDefault();
+  }
+
   const handleClick = e => onClick(color, e)
   const handleKeyDown = e => e.keyCode === ENTER && onClick(color, e)
   const handleHover = e => onHover(color, e)
@@ -40,6 +44,7 @@ export const Swatch = ({ color, style, onClick = () => {}, onHover, title = colo
       title={ title }
       tabIndex={ 0 }
       onKeyDown={ handleKeyDown }
+      onMouseDown={handleMouseDown}
       { ...optionalEvents }
     >
       { children }

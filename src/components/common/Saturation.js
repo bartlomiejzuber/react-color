@@ -26,6 +26,7 @@ export class Saturation extends (PureComponent || Component) {
   }
 
   handleMouseDown = (e) => {
+    e.preventDefault();
     this.handleChange(e)
     window.addEventListener('mousemove', this.handleChange)
     window.addEventListener('mouseup', this.handleMouseUp)

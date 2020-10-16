@@ -14,6 +14,31 @@ const getNumberValue = value => Number(String(value).replace(/%/g, ''))
 
 let idCounter = 1
 
+let range;
+function saveSelection() {
+  if (window.getSelection) {
+    const sel = window.getSelection();
+    if (sel.getRangeAt && sel.rangeCount) {
+      return sel.getRangeAt(0);
+    }
+  } else if (document.selection && document.selection.createRange) {
+    return document.selection.createRange();
+  }
+  return null;
+}
+
+function restoreSelection() {
+  if (range) {
+    if (window.getSelection) {
+      const sel = window.getSelection();
+      sel.removeAllRanges();
+      sel.addRange(range);
+    } else if (doc.selection && range.select) {
+      range.select();
+    }
+  }
+}
+
 export class EditableInput extends (PureComponent || Component) {
   constructor(props) {
     super()
@@ -53,6 +78,7 @@ export class EditableInput extends (PureComponent || Component) {
     if (this.state.blurValue) {
       this.setState({ value: this.state.blurValue, blurValue: null })
     }
+    restoreSelection();
   }
 
   handleChange = (e) => {
@@ -93,8 +119,8 @@ export class EditableInput extends (PureComponent || Component) {
   }
 
   handleMouseDown = (e) => {
+    e.preventDefault();
     if (this.props.dragLabel) {
-      e.preventDefault()
       this.handleDrag(e)
       window.addEventListener('mousemove', this.handleDrag)
       window.addEventListener('mouseup', this.handleMouseUp)
@@ -108,6 +134,14 @@ export class EditableInput extends (PureComponent || Component) {
   unbindEventListeners = () => {
     window.removeEventListener('mousemove', this.handleDrag)
     window.removeEventListener('mouseup', this.handleMouseUp)
+  }
+
+  onMouseDownPreventDefault = () => {
+    range = saveSelection();
+  }
+
+  restoreSelectionHandler = () => {
+    restoreSelection();
   }
 
   render() {
@@ -132,27 +166,29 @@ export class EditableInput extends (PureComponent || Component) {
     }, this.props)
 
     return (
-      <div style={ styles.wrap }>
+      <div style={styles.wrap}>
         <input
-          id={ this.inputId }
-          style={ styles.input }
-          ref={ input => this.input = input }
-          value={ this.state.value }
-          onKeyDown={ this.handleKeyDown }
-          onChange={ this.handleChange }
-          onBlur={ this.handleBlur }
-          placeholder={ this.props.placeholder }
+          id={this.inputId}
+          style={styles.input}
+          ref={input => this.input = input}
+          value={this.state.value}
+          onKeyDown={this.handleKeyDown}
+          onChange={this.handleChange}
+          onBlur={this.handleBlur}
+          onMouseDown={this.onMouseDownPreventDefault}
+          onMouseUp={this.restoreSelectionHandler}
+          placeholder={this.props.placeholder}
           spellCheck="false"
         />
         { this.props.label && !this.props.hideLabel ? (
           <label
-            htmlFor={ this.inputId }
-            style={ styles.label }
-            onMouseDown={ this.handleMouseDown }
+            htmlFor={this.inputId}
+            style={styles.label}
+            onMouseDown={this.handleMouseDown}
           >
-            { this.props.label }
+            { this.props.label}
           </label>
-        ) : null }
+        ) : null}
       </div>
     )
   }
