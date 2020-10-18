@@ -14,31 +14,6 @@ const getNumberValue = value => Number(String(value).replace(/%/g, ''))
 
 let idCounter = 1
 
-let range;
-function saveSelection() {
-  if (window.getSelection) {
-    const sel = window.getSelection();
-    if (sel.getRangeAt && sel.rangeCount) {
-      return sel.getRangeAt(0);
-    }
-  } else if (document.selection && document.selection.createRange) {
-    return document.selection.createRange();
-  }
-  return null;
-}
-
-function restoreSelection() {
-  if (range) {
-    if (window.getSelection) {
-      const sel = window.getSelection();
-      sel.removeAllRanges();
-      sel.addRange(range);
-    } else if (doc.selection && range.select) {
-      range.select();
-    }
-  }
-}
-
 export class EditableInput extends (PureComponent || Component) {
   constructor(props) {
     super()
@@ -136,14 +111,6 @@ export class EditableInput extends (PureComponent || Component) {
     window.removeEventListener('mouseup', this.handleMouseUp)
   }
 
-  onMouseDownPreventDefault = () => {
-    range = saveSelection();
-  }
-
-  restoreSelectionHandler = () => {
-    restoreSelection();
-  }
-
   render() {
     const styles = reactCSS({
       'default': {
@@ -174,8 +141,6 @@ export class EditableInput extends (PureComponent || Component) {
           value={this.state.value}
           onKeyDown={this.handleKeyDown}
           onChange={this.handleChange}
-          onBlur={this.handleBlur}
-          onMouseDown={this.onMouseDownPreventDefault}
           onMouseUp={this.restoreSelectionHandler}
           placeholder={this.props.placeholder}
           spellCheck="false"
